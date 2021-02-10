@@ -1,0 +1,23 @@
+[
+    {
+        "Id": "AWSCookbookRuleID",
+        "Arn": "ECSClusterARN",
+        "RoleArn": "arn:aws:iam::AWS_ACCOUNT_ID:role/AWSCookbook407RuleRole",
+        "EcsParameters": {
+            "TaskDefinitionArn": "TaskDefinitionARN",
+            "TaskCount": 1,
+            "LaunchType": "FARGATE",
+            "NetworkConfiguration": {
+                "awsvpcConfiguration": {
+                    "Subnets": [VPCPrivateSubnets],
+                    "SecurityGroups": ["VPCDefaultSecurityGroup"],
+                    "AssignPublicIp": "ENABLED"
+                }
+            }
+        },
+        "InputTransformer": {
+          "InputPathsMap": {"s3_bucket": "$.detail.requestParameters.bucketName","s3_key": "$.detail.requestParameters.key"},
+          "InputTemplate": "{ \"containerOverrides\": [{\"name\": \"AWS-Cookbook-ContainerDefinition\",\"environment\": [{ \"name\": \"S3_BUCKET\", \"value\": <s3_bucket> },{ \"name\": \"S3_KEY\", \"value\": <s3_key> }]}]}"
+        }
+    }
+]

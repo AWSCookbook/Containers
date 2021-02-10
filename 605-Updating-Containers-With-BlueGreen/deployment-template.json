@@ -1,0 +1,12 @@
+{
+    "applicationName": "awscookbook-405",
+    "deploymentGroupName": "awscookbook-405-dg",
+    "revision": {
+        "revisionType": "S3",
+        "s3Location": {
+            "bucket": "S3BucketName",
+            "key": "appspec.yaml",
+            "bundleType": "YAML"
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "entryPoint": [
+                "sh",
+                "-c"
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "AWSCookbook408ECS",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "LogStream"
+                }
+            },
+            "name": "awscookbook408",
+            "image": "httpd:2.4",
+            "command": [
+                "/bin/sh -c \"echo 'Hello AWS Cookbook Reader, this container is running on ECS!'  > /usr/local/apache2/htdocs/index.html && httpd-foreground\""
+            ]
+        }
+    ],
+    "family": "awscookbook408",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512"
+ }
+

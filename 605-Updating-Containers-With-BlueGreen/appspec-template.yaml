@@ -1,0 +1,10 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "FargateTaskGreenArn"
+        LoadBalancerInfo:
+          ContainerName: "ContainerDefGreen"
+          ContainerPort: 80
+        PlatformVersion: "LATEST"

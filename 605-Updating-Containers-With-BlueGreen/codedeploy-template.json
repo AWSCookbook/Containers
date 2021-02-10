@@ -1,0 +1,53 @@
+{
+    "applicationName": "awscookbook-405",
+    "autoRollbackConfiguration": {
+       "enabled": true,
+       "events": [ "DEPLOYMENT_FAILURE" ]
+    },
+    "blueGreenDeploymentConfiguration": {
+       "deploymentReadyOption": {
+          "actionOnTimeout": "CONTINUE_DEPLOYMENT",
+          "waitTimeInMinutes": 0
+       },
+       "terminateBlueInstancesOnDeploymentSuccess": {
+          "action": "TERMINATE",
+          "terminationWaitTimeInMinutes": 5
+       }
+    },
+    "deploymentGroupName": "awscookbook-405-dg",
+    "deploymentStyle": {
+       "deploymentOption": "WITH_TRAFFIC_CONTROL",
+       "deploymentType": "BLUE_GREEN"
+    },
+    "loadBalancerInfo": {
+       "targetGroupPairInfoList": [
+        {
+           "targetGroups": [
+                {
+                    "name": "BlueTG"
+                },
+                {
+                    "name": "GreenTG"
+                }
+           ],
+           "prodTrafficRoute": {
+               "listenerArns":  [
+                   "ProdListenerArn"
+                ]
+           },
+           "testTrafficRoute": {
+                "listenerArns": [
+                    "TestListenerArn"
+                ]
+            }  
+        }
+       ]
+    },
+    "serviceRoleArn": "arn:aws:iam::AWS_ACCOUNT_ID:role/ecsCodeDeployRole",
+    "ecsServices": [
+        {
+            "serviceName": "AWSCookbook405",
+            "clusterName": "awscookbook405"
+        }
+    ]
+ }

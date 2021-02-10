@@ -1,0 +1,15 @@
+{
+    "serviceName": "awscookbook",
+    "containers": {
+       "awscookbook": {
+          "image": ":awscookbook.awscookbook.1",
+          "ports": {
+             "80": "HTTP"
+          }
+       }
+    },
+    "publicEndpoint": {
+       "containerName": "awscookbook",
+       "containerPort": 80
+    }
+  }
