@@ -1,4 +1,4 @@
-# Chapter 6
+# Chapter 6 - Containers
 ## Set and export your default region 
 export AWS_REGION=us-east-1
 ## Set your AWS ACCOUNT ID 
