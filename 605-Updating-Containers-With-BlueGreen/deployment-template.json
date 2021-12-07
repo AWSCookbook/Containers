@@ -1,6 +1,6 @@
 {
-    "applicationName": "awscookbook-405",
-    "deploymentGroupName": "awscookbook-405-dg",
+    "applicationName": "awscookbook-605",
+    "deploymentGroupName": "awscookbook-605-dg",
     "revision": {
         "revisionType": "S3",
         "s3Location": {

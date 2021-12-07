@@ -17,19 +17,19 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "AWSCookbook408ECS",
+                    "awslogs-group": "AWSCookbook608ECS",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "LogStream"
                 }
             },
-            "name": "awscookbook408",
+            "name": "awscookbook608",
             "image": "httpd:2.4",
             "command": [
                 "/bin/sh -c \"echo 'Hello AWS Cookbook Reader, this container is running on ECS!'  > /usr/local/apache2/htdocs/index.html && httpd-foreground\""
             ]
         }
     ],
-    "family": "awscookbook408",
+    "family": "awscookbook608",
     "requiresCompatibilities": [
         "FARGATE"
     ],

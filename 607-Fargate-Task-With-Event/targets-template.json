@@ -2,7 +2,7 @@
     {
         "Id": "AWSCookbookRuleID",
         "Arn": "ECSClusterARN",
-        "RoleArn": "arn:aws:iam::AWS_ACCOUNT_ID:role/AWSCookbook407RuleRole",
+        "RoleArn": "arn:aws:iam::AWS_ACCOUNT_ID:role/AWSCookbook607RuleRole",
         "EcsParameters": {
             "TaskDefinitionArn": "TaskDefinitionARN",
             "TaskCount": 1,

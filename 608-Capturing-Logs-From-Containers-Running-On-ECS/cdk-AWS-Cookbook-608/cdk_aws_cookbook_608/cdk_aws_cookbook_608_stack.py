@@ -1,13 +1,15 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
-    core,
+    Stack,
+    CfnOutput,
 )
 
 
-class CdkAwsCookbook608Stack(core.Stack):
+class CdkAwsCookbook608Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # create VPC
@@ -34,7 +36,7 @@ class CdkAwsCookbook608Stack(core.Stack):
             security_groups=[InterfaceEndpointSecurityGroup],
             subnets=ec2.SubnetSelection(
                 one_per_az=True,
-                subnet_type=ec2.SubnetType.PRIVATE
+                subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT
             ),
         )
 
@@ -45,22 +47,22 @@ class CdkAwsCookbook608Stack(core.Stack):
             vpc=vpc
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'ECSClusterName',
+            'EcsClusterName',
             value=ecs_cluster.cluster_name
         )
 
         public_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.PUBLIC)
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCPublicSubnets',
+            'VpcPublicSubnets',
             value=', '.join(map(str, public_subnets.subnet_ids))
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCDefaultSecurityGroup',
+            'VpcDefaultSecurityGroup',
             value=vpc.vpc_default_security_group
         )

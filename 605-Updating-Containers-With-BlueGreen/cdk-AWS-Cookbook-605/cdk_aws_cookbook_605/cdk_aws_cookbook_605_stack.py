@@ -1,16 +1,20 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_s3 as s3,
     aws_ecr_assets as ecr_assets,
     aws_elasticloadbalancingv2 as alb,
-    core,
+    Stack,
+    CfnOutput,
+    Duration,
+    RemovalPolicy
 )
 
 
-class CdkAwsCookbook605Stack(core.Stack):
+class CdkAwsCookbook605Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         ecr_asset_blue = ecr_assets.DockerImageAsset(
@@ -120,18 +124,18 @@ class CdkAwsCookbook605Stack(core.Stack):
             assign_public_ip=False,
             desired_count=2,
             enable_ecs_managed_tags=False,
-            # health_check_grace_period=core.Duration.seconds(60),
+            # health_check_grace_period=Duration.seconds(60),
             max_healthy_percent=100,
             min_healthy_percent=0,
             platform_version=ecs.FargatePlatformVersion('LATEST'),
-            security_group=fargate_service_security_group,
+            security_groups=[fargate_service_security_group],
             service_name='AWSCookbook605',
             deployment_controller=ecs.DeploymentController(
                 type=ecs.DeploymentControllerType('CODE_DEPLOY')
             ),
             vpc_subnets=ec2.SubnetSelection(
                 one_per_az=False,
-                subnet_type=ec2.SubnetType('PRIVATE')
+                subnet_type=ec2.SubnetType('PRIVATE_WITH_NAT')
             )
         )
 
@@ -141,7 +145,7 @@ class CdkAwsCookbook605Stack(core.Stack):
             vpc=vpc,
             deletion_protection=False,
             http2_enabled=True,
-            idle_timeout=core.Duration.seconds(60),
+            idle_timeout=Duration.seconds(60),
             internet_facing=True,
             ip_address_type=alb.IpAddressType('IPV4'),
             load_balancer_name='FargateServiceALB',
@@ -170,20 +174,23 @@ class CdkAwsCookbook605Stack(core.Stack):
             protocol=alb.ApplicationProtocol('HTTP'),
             default_target_groups=[DefaultTargetGroup]
         )
-
+        
         BlueTargetGroup = listener80.add_targets(
             'BlueTargetGroup',
-            deregistration_delay=core.Duration.seconds(60),
+            conditions=[alb.ListenerCondition.http_header(
+                name="All",
+                values=['*.*.*'],
+            )],
+            deregistration_delay=Duration.seconds(60),
             health_check=alb.HealthCheck(
                 healthy_http_codes='200',
                 healthy_threshold_count=2,
-                interval=core.Duration.seconds(10),
+                interval=Duration.seconds(10),
                 path='/',
                 port='traffic-port',
                 protocol=alb.Protocol('HTTP'),
                 unhealthy_threshold_count=2
             ),
-            host_header="*.*.*",
             port=80,
             priority=1,
             protocol=alb.ApplicationProtocol('HTTP'),
@@ -205,93 +212,93 @@ class CdkAwsCookbook605Stack(core.Stack):
         s3_Bucket = s3.Bucket(
             self,
             "AWS-Cookbook-Recipe605",
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True
         )
 
         # outputs
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'BlueImage',
             value=ecr_asset_blue.image_uri
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'GreenImage',
             value=ecr_asset_green.image_uri
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCId',
+            'VpcId',
             value=vpc.vpc_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'LoadBalancerDNS',
+            'LoadBalancerDns',
             value=lb.load_balancer_dns_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'ECSClusterName',
+            'EcsClusterName',
             value=ecs_cluster.cluster_name
         )
 
         public_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.PUBLIC)
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCPublicSubnets',
+            'VpcPublicSubnets',
             value=', '.join(map(str, public_subnets.subnet_ids))
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCDefaultSecurityGroup',
+            'VpcDefaultSecurityGroup',
             value=vpc.vpc_default_security_group
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'S3BucketName',
+            'BucketName',
             value=s3_Bucket.bucket_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'BlueTargetGroupName',
             value=BlueTargetGroup.target_group_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'ProdListenerArn',
             value=listener80.listener_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'TestListenerArn',
             value=listener8080.listener_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'DefaultTargetGroupArn',
             value=DefaultTargetGroup.target_group_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'FargateTaskBlueArn',
             value=FargateTaskBlue.task_definition_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'FargateTaskGreenArn',
             value=FargateTaskGreen.task_definition_arn

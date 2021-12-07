@@ -1,22 +1,25 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_s3 as s3,
     aws_iam as iam,
     aws_cloudtrail as cloudtrail,
-    core,
+    Stack,
+    CfnOutput,
+    RemovalPolicy
 )
 
 
-class CdkAwsCookbook607Stack(core.Stack):
+class CdkAwsCookbook607Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         cloud_trail_bucket = s3.Bucket(
             self,
             "AWS-Cookbok-Recipe607-Cloud-trail",
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True
         )
 
@@ -29,7 +32,7 @@ class CdkAwsCookbook607Stack(core.Stack):
         s3_Bucket = s3.Bucket(
             self,
             "AWS-Cookbok-Recipe607",
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True
         )
 
@@ -75,52 +78,52 @@ class CdkAwsCookbook607Stack(core.Stack):
             actions=["s3:*"])
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'CloudTrailArn',
             value=trail.trail_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'S3BucketARN',
+            'BucketArn',
             value=s3_Bucket.bucket_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'CloudTrailS3BucketName',
+            'CloudTrailBucketName',
             value=cloud_trail_bucket.bucket_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'S3BucketName',
+            'BucketName',
             value=s3_Bucket.bucket_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'ECSClusterARN',
+            'EcsClusterArn',
             value=ecs_cluster.cluster_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'TaskDefinitionARN',
+            'TaskDefinitionArn',
             value=FargateTask.task_definition_arn
         )
 
-        private_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.PRIVATE)
+        private_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT)
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCPrivateSubnets',
+            'VpcPrivateSubnets',
             value=', '.join(map(str, private_subnets.subnet_ids))
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCDefaultSecurityGroup',
+            'VpcDefaultSecurityGroup',
             value=vpc.vpc_default_security_group
         )

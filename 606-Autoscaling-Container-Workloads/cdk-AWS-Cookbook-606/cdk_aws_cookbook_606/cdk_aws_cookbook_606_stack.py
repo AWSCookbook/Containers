@@ -1,15 +1,18 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_elasticloadbalancingv2 as alb,
     aws_ecr_assets as ecr_assets,
-    core,
+    Stack,
+    CfnOutput,
+    Duration
 )
 
 
-class CdkAwsCookbook606Stack(core.Stack):
+class CdkAwsCookbook606Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         ecr_asset = ecr_assets.DockerImageAsset(
@@ -42,7 +45,7 @@ class CdkAwsCookbook606Stack(core.Stack):
             security_groups=[InterfaceEndpointSecurityGroup],
             subnets=ec2.SubnetSelection(
                 one_per_az=True,
-                subnet_type=ec2.SubnetType.PRIVATE
+                subnet_type=ec2.SubnetType('PRIVATE_WITH_NAT')
             ),
         )
 
@@ -110,11 +113,11 @@ class CdkAwsCookbook606Stack(core.Stack):
             max_healthy_percent=100,
             min_healthy_percent=0,
             platform_version=ecs.FargatePlatformVersion('LATEST'),
-            security_group=fargate_service_security_group,
+            security_groups=[fargate_service_security_group],
             service_name='AWSCookbook606',
             vpc_subnets=ec2.SubnetSelection(
                 one_per_az=False,
-                subnet_type=ec2.SubnetType('PRIVATE')
+                subnet_type=ec2.SubnetType('PRIVATE_WITH_NAT')
             )
         )
 
@@ -124,7 +127,7 @@ class CdkAwsCookbook606Stack(core.Stack):
             vpc=vpc,
             deletion_protection=False,
             http2_enabled=True,
-            idle_timeout=core.Duration.seconds(60),
+            idle_timeout=Duration.seconds(60),
             internet_facing=True,
             ip_address_type=alb.IpAddressType('IPV4'),
             load_balancer_name='FargateServiceALB',
@@ -138,11 +141,11 @@ class CdkAwsCookbook606Stack(core.Stack):
         DefaultTargetGroup = alb.ApplicationTargetGroup(
             self,
             "DefaultTargetGroup",
-            deregistration_delay=core.Duration.seconds(60),
+            deregistration_delay=Duration.seconds(60),
             health_check=alb.HealthCheck(
                 healthy_http_codes='200',
                 healthy_threshold_count=2,
-                interval=core.Duration.seconds(10),
+                interval=Duration.seconds(10),
                 path='/loadtest/healthcheck',
                 port='traffic-port',
                 protocol=alb.Protocol('HTTP'),
@@ -165,18 +168,18 @@ class CdkAwsCookbook606Stack(core.Stack):
             default_target_groups=[DefaultTargetGroup]
         )
 
-        core.CfnOutput(
-            self, 'LoadBalancerDNS',
+        CfnOutput(
+            self, 'LoadBalancerDns',
             value=lb.load_balancer_dns_name
         )
 
-        core.CfnOutput(
-            self, 'ECSClusterName',
+        CfnOutput(
+            self, 'EcsClusterName',
             value=ecs_cluster.cluster_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'ECRImage',
+            'EcrImage',
             value=ecr_asset.image_uri
         )

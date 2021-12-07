@@ -1,81 +1,68 @@
 # Capturing logs from containers running on Amazon ECS
 ## Preparation
-### In the root of the Chapter 4 repo cd to the “408-Capturing-Logs-From-Containers-Running-On-ECS/cdk-AWS-Cookbook-408” folder and follow the subsequent steps: 
-    cd 408-Capturing-Logs-From-Containers-Running-On-ECS/cdk-AWS-Cookbook-408
-    python3 -m venv .env
-    source .env/bin/activate
-    python -m pip install --upgrade pip setuptools wheel
-    python -m pip install -r requirements.txt
-    cdk deploy
-###  Run the script, and copy the output to your terminal to export variables:
-    python helper.py
 
-### Navigate up to the main directory for this recipe (out of the “cdk-AWS-Cookbook-408” folder)
-    cd ..
+This recipe requires some “prep work” which deploys resources that you’ll build the solution on. You will use the AWS CDK to deploy these resources.
 
-## Steps
+### In the root of this Chapter’s repo cd to the “608-Capturing-Logs-From-Containers-Running-On-ECS/cdk-AWS-Cookbook-608” directory and follow the subsequent steps:
+```
+cd 608-Capturing-Logs-From-Containers-Running-On-ECS/cdk-AWS-Cookbook-608
+test -d .venv || python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+cdk deploy
+```
 
-### Create the ECS service-linked role if it does not exist:
-    aws iam list-roles --path-prefix /aws-service-role/ecs.amazonaws.com/
-    aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
+### Wait for the cdk deploy command to complete. 
 
-### Create an IAM role using the statement in the file task-execution-assume-role.json
-    aws iam create-role --role-name AWSCookbook408ECS \
-    --assume-role-policy-document file://task-execution-assume-role.json
+### We created a helper.py script to let you easily create and export environment variables to make subsequent commands easier. Run the script, and copy the output to your terminal to export variables:
 
-### Attach the AWS managed IAM policy for ECS task execution to the IAM role that you just created: 
-    aws iam attach-role-policy --role-name AWSCookbook408ECS --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+`python helper.py`
 
-### Create a Log Group in CloudWatch: 
-    aws logs create-log-group --log-group-name AWSCookbook408ECS
+### Navigate up to the main directory for this recipe (out of the “cdk-AWS-Cookbook-608” directory):
 
-### Register the ask definition
-    aws ecs register-task-definition --execution-role-arn \
-    "arn:aws:iam::$AWS_ACCOUNT_ID:role/AWSCookbook408ECS" \
-    --cli-input-json file://taskdef.json
+`cd ..`
 
-### Run the ECS task on the ECS cluster that you created earlier in this recipe with the AWS CDK:
-    aws ecs run-task --cluster $ECSClusterName \
-    --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[$VPCPublicSubnets],securityGroups=[$VPCDefaultSecurityGroup],assignPublicIp=ENABLED}" --task-definition awscookbook408
+### This solution, like the others using Amazon ECS, requires an ECS service-linked role to allow ECS to perform actions on your behalf. This may already exist in your AWS account. To see if you have this role already, issue the following command:
 
-### Check the task status using the Task ARN
-    aws ecs list-tasks --cluster $ECSClusterName
+`aws iam list-roles --path-prefix /aws-service-role/ecs.amazonaws.com/`
 
-### Then use the task ARN to check for the “RUNNING” state with the describe-tasks command output:
-    aws ecs describe-tasks --cluster $ECSClusterName --tasks <<TaskARN>>
+### If the role is displayed, you can skip the creation step.
 
-### After the task has reached the “RUNNING” state (approximately 15 seconds), use the following commands to view logs. 
-    aws logs describe-log-streams --log-group-name AWSCookbook408ECS
+### Create the ECS service-linked role if it does not exist (it is OK if the command fails indicating that the role already exists in your account):
 
-### Note the logStreamName from the output and then run the get-log-events command
-    aws logs get-log-events --log-group-name AWSCookbook408ECS \
-    --log-stream-name <<logStreamName>>
+`aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com`
 
-### Finally, Observe the log output returned in the previous command.
 
 ## Clean up 
+
 ### Stop the ECS task:
-    aws ecs stop-task --cluster $ECSClusterName --task <<TaskARN>>
+
+`aws ecs stop-task --cluster $ECS_CLUSTER_NAME --task <<TaskARN>>`
 
 ### Delete the IAM Policy Attachment and Role:
-    aws iam detach-role-policy --role-name AWSCookbook408ECS --policy-arn \
-    arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-    aws iam delete-role --role-name AWSCookbook408ECS
+```
+aws iam detach-role-policy --role-name AWSCookbook608ECS --policy-arn \
+arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+aws iam delete-role --role-name AWSCookbook608ECS
+```
 
 ### Delete Log Group:
-    aws logs delete-log-group --log-group-name AWSCookbook408ECS
+`aws logs delete-log-group --log-group-name AWSCookbook608ECS`
 
 ### Deregister the Task Definition 
-    aws ecs deregister-task-definition --task-definition awscookbook408:1
 
-### Go to the cdk-AWS-Cookbook-408 directory
-    cd cdk-AWS-Cookbook-408/
+`aws ecs deregister-task-definition --task-definition awscookbook608:1`
 
-### To clean up the environment variables, run the helper.py script in this recipe’s cdk- folder with the --unset flag, and copy the output to your terminal to export variables:
-    python helper.py --unset
+### Go to the cdk-AWS-Cookbook-608 directory
 
-### Use the AWS CDK to destroy the remaining resources:
-    cdk destroy
+`cd cdk-AWS-Cookbook-608/`
 
-### Deactivate your python virtual environment:
-    deactivate
+### To clean up the environment variables, run the helper.py script in this recipe’s cdk- directory with the --unset flag, and copy the output to your terminal to export variables:
+
+`python helper.py --unset`
+
+### Use the AWS CDK to destroy the resources, deactivate your Python virtual environment, and go to the root of the chapter:
+
+`cdk destroy && deactivate && rm -r .venv/ && cd ../..`
+

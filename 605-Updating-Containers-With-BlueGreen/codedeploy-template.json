@@ -1,5 +1,5 @@
 {
-    "applicationName": "awscookbook-405",
+    "applicationName": "awscookbook-605",
     "autoRollbackConfiguration": {
        "enabled": true,
        "events": [ "DEPLOYMENT_FAILURE" ]
@@ -14,7 +14,7 @@
           "terminationWaitTimeInMinutes": 5
        }
     },
-    "deploymentGroupName": "awscookbook-405-dg",
+    "deploymentGroupName": "awscookbook-605-dg",
     "deploymentStyle": {
        "deploymentOption": "WITH_TRAFFIC_CONTROL",
        "deploymentType": "BLUE_GREEN"
@@ -32,12 +32,12 @@
            ],
            "prodTrafficRoute": {
                "listenerArns":  [
-                   "ProdListenerArn"
+                   "PROD_LISTENER_ARN"
                 ]
            },
            "testTrafficRoute": {
                 "listenerArns": [
-                    "TestListenerArn"
+                    "TEST_LISTENER_ARN"
                 ]
             }  
         }
@@ -46,8 +46,8 @@
     "serviceRoleArn": "arn:aws:iam::AWS_ACCOUNT_ID:role/ecsCodeDeployRole",
     "ecsServices": [
         {
-            "serviceName": "AWSCookbook405",
-            "clusterName": "awscookbook405"
+            "serviceName": "AWSCookbook605",
+            "clusterName": "awscookbook605"
         }
     ]
  }
