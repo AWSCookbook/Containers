@@ -86,7 +86,9 @@ aws ecr batch-delete-image --repository-name aws-cookbook-repo \
  ```
 
 ### Delete the repository:
-`aws ecr delete-repository --repository-name aws-cookbook-repo`
+```
+aws ecr delete-repository --repository-name aws-cookbook-repo
+```
 
 ## Discussion
 The [Common Vulnerabilities and Exposures (CVEs)](https://cve.mitre.org/) database from the open source [Clair project](https://github.com/quay/clair) is used by Amazon ECR for [vulnerability scanning](https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-scanning.html). You are provided a Common Vulnerability Scoring System (CVSS) score to indicate the severity of any detected vulnerabilities. This helps you detect and remediate vulnerabilities in your container image. You can configure alerts for newly discovered vulnerabilities in images by using Amazon EventBridge and Amazon Simple Notification Service (Amazon SNS).
