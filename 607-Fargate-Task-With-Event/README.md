@@ -3,7 +3,7 @@
 ## Problem
 You need to launch a container task to process incoming files.
 
-![Figure 1.8](LaunchingFargateTaskOnEvent.png)
+![Figure 6.12](LaunchingFargateTaskOnEvent.png)
 
 ### Prerequisites
 * Amazon Virtual Private Cloud (VPC) with isolated or private subnets and associated route tables
